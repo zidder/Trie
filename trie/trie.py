@@ -6,19 +6,19 @@ class Trie:
         self.d = {}
         self.root = True
         self.v = self.EMPTY
-    
+
     @classmethod
     def _create_item(cls, root=False):
         obj = cls()
         obj.root = root
         return obj
-    
+
     def __getitem__(self, key):
         if len(key) == 0:
             if not self.is_set():
                 raise KeyError(key.string)
             return self.v
-        
+
         if key[0] not in self.d:
             raise KeyError(key.string)
 
@@ -51,7 +51,7 @@ class Trie:
         return self.v is not self.EMPTY
 
     def to_dict(self):
-        d = {i + k: v for i, dct in self.d.items() for k, v in dct.items()} 
+        d = {i + k: v for i, dct in self.d.items() for k, v in dct.items()}
         if self.is_set():
             d[''] = self.v
         return d
@@ -79,12 +79,16 @@ class Trie:
         if key[0] not in self.d:
             raise KeyError(key.string)
         return self.d[key[0]].get_subtrie(key[1:])
-    
+
     def complete(self, key):
         return self.get_subtrie(key).to_dict()
 
     def fix_typos(self, key, d=2, nadd=False, ndel=False):
         if len(key) == 0:
+            if nadd:
+                if self.is_set():
+                    yield '', 0
+                return
             for k in self.keys():
                 yield k, 0
             return
@@ -113,7 +117,6 @@ class Trie:
             # delete
             for tpl in self.fix_typos(key[1:], d - 1, nadd=True):
                 yield (tpl[0], tpl[1] + 1)
-        
 
     def autocomplete(self, key, *, maxd=2, limit=5):
         res = []
