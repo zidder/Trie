@@ -2,10 +2,11 @@ class Trie:
     __slots__ = ('v', 'root', 'd')
     EMPTY = object()
 
-    def __init__(self):
+    def __init__(self, *, zero_complete=True):
         self.d = {}
         self.root = True
         self.v = self.EMPTY
+        self.zero_complete = zero_complete
 
     @classmethod
     def _create_item(cls, root=False):
@@ -85,12 +86,11 @@ class Trie:
 
     def fix_typos(self, key, d=2, nadd=False, ndel=False):
         if len(key) == 0:
-            if nadd:
-                if self.is_set():
-                    yield '', 0
-                return
-            for k in self.keys():
-                yield k, 0
+            if self.is_set():
+                yield '', 0
+            if not nadd and self.zero_complete:
+                for k in self.keys():
+                    yield k, 0
             return
 
         if key[0] in self.d:
@@ -112,7 +112,6 @@ class Trie:
                 if k != key[0]:
                     for tpl in self.d[k].fix_typos(key[1:], d - 1):
                         yield (k + tpl[0], tpl[1] + 1)
-
         if d and not ndel:
             # delete
             for tpl in self.fix_typos(key[1:], d - 1, nadd=True):
@@ -122,7 +121,8 @@ class Trie:
         res = []
         for i in range(maxd + 1):
             for k, dst in self.fix_typos(key, i):
-                res.append(k)
+                if k not in res:
+                    res.append(k)
                 if len(res) == limit:
                     break
             if res:
