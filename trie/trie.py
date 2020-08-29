@@ -1,5 +1,5 @@
 class Trie:
-    __slots__ = ('v', 'root', 'd')
+    __slots__ = ('v', 'root', 'd', 'zero_complete')
     EMPTY = object()
 
     def __init__(self, *, zero_complete=True):
