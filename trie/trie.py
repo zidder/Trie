@@ -8,9 +8,8 @@ class Trie:
         self.v = self.EMPTY
         self.zero_complete = zero_complete
 
-    @classmethod
-    def _create_item(cls, root=False):
-        obj = cls()
+    def _create_item(self, root=False):
+        obj = (type(self))(zero_complete=self.zero_complete)
         obj.root = root
         return obj
 
@@ -88,9 +87,14 @@ class Trie:
         if len(key) == 0:
             if self.is_set():
                 yield '', 0
-            if not nadd and self.zero_complete:
-                for k in self.keys():
-                    yield k, 0
+            if not nadd:
+                if self.zero_complete:
+                    for k in self.keys():
+                        yield k, 0
+                else:
+                    for k in self.keys():
+                        if len(k) <= d:
+                            yield k, len(k)
             return
 
         if key[0] in self.d:
